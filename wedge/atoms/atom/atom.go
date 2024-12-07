@@ -1,7 +1,11 @@
 // Package atom implements the Atom interface and functions.
 package atom
 
-import "fmt"
+import (
+	"fmt"
+
+	"github.com/stvmln86/wedge/wedge/atoms/cell"
+)
 
 // Atom is a parsed program value.
 type Atom interface {
@@ -18,6 +22,8 @@ type Atom interface {
 // Atomise returns an Atom from a string.
 func Atomise(s string) (Atom, error) {
 	switch {
+	case cell.Is(s):
+		return cell.Parse(s)
 	default:
 		return nil, fmt.Errorf("invalid Atom %q", s)
 	}
