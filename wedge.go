@@ -7,44 +7,10 @@ package main
 import (
 	"bufio"
 	"fmt"
-	"io"
-	"os"
 	"slices"
 	"strconv"
 	"strings"
 )
-
-///////////////////////////////////////////////////////////////////////////////////////
-//                                part 0 · the globals                               //
-///////////////////////////////////////////////////////////////////////////////////////
-
-// Stdin is the global input stream.
-var Stdin io.Reader = os.Stdin
-
-// Stdout is the global output stream.
-var Stdout io.Writer = os.Stdout
-
-///////////////////////////////////////////////////////////////////////////////////////
-//                                part 1 · the helpers                               //
-///////////////////////////////////////////////////////////////////////////////////////
-
-// Read returns an integer from Stdin.
-func Read() int {
-	var bs = make([]byte, 1)
-	Stdin.Read(bs)
-	return int(bs[0])
-}
-
-// Write writes an integer or byte to Stdout.
-func Write(a any) {
-	switch a := a.(type) {
-	case byte:
-		Stdout.Write([]byte{a})
-	case int:
-		s := fmt.Sprintf("%c", a)
-		Stdout.Write([]byte(s))
-	}
-}
 
 ///////////////////////////////////////////////////////////////////////////////////////
 //                                 part 2 · the stack                                //
