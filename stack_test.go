@@ -13,6 +13,7 @@ func TestPop(t *testing.T) {
 	// success
 	i := Pop()
 	assert.Equal(t, 1, i)
+	assert.Empty(t, Stack)
 }
 
 func TestPush(t *testing.T) {
