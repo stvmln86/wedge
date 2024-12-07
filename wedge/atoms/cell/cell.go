@@ -1,4 +1,4 @@
-// Package cell implements the Cell Atom type and methods.
+// Package cell implements the Cell Atom type.
 package cell
 
 import (
