@@ -8,11 +8,11 @@ import (
 
 func TestPop(t *testing.T) {
 	// setup
-	Stack = []int{1}
+	Stack = []int{123}
 
 	// success
 	i := Pop()
-	assert.Equal(t, 1, i)
+	assert.Equal(t, 123, i)
 	assert.Empty(t, Stack)
 }
 
@@ -21,6 +21,6 @@ func TestPush(t *testing.T) {
 	Stack = []int{}
 
 	// success
-	Push(1)
-	assert.Equal(t, []int{1}, Stack)
+	Push(123)
+	assert.Equal(t, []int{123}, Stack)
 }
