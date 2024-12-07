@@ -43,7 +43,7 @@ func (s *Stack) Pop() (cell.Cell, error) {
 // PopN removes and returns the top N Cells on the Stack.
 func (s *Stack) PopN(n int) ([]cell.Cell, error) {
 	if len(s.Cells) < n {
-		return nil, fmt.Errorf("Stack is insufficient")
+		return nil, fmt.Errorf("Stack is missing %d Cells", n)
 	}
 
 	cs := s.Cells[len(s.Cells)-n:]

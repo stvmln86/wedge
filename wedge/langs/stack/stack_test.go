@@ -9,8 +9,8 @@ import (
 
 func TestNew(t *testing.T) {
 	// success
-	s := New(1, 2, 3)
-	assert.Equal(t, []cell.Cell{1, 2, 3}, s.Cells)
+	s := New(1, 2)
+	assert.Equal(t, []cell.Cell{1, 2}, s.Cells)
 }
 
 func TestEmpty(t *testing.T) {
@@ -19,14 +19,14 @@ func TestEmpty(t *testing.T) {
 	assert.True(t, b)
 
 	// success - false
-	b = New(1, 2, 3).Empty()
+	b = New(1, 2).Empty()
 	assert.False(t, b)
 }
 
 func TestLen(t *testing.T) {
 	// success
-	i := New(1, 2, 3).Len()
-	assert.Equal(t, 3, i)
+	i := New(1, 2).Len()
+	assert.Equal(t, 2, i)
 }
 
 func TestPop(t *testing.T) {
@@ -46,17 +46,17 @@ func TestPop(t *testing.T) {
 
 func TestPopN(t *testing.T) {
 	// setup
-	s := New(1, 2, 3)
+	s := New(1, 2)
 
 	// success
-	cs, err := s.PopN(3)
-	assert.Equal(t, []cell.Cell{3, 2, 1}, cs)
+	cs, err := s.PopN(2)
+	assert.Equal(t, []cell.Cell{2, 1}, cs)
 	assert.NoError(t, err)
 
-	// error - Stack is insufficient
+	// error - Stack is missing Cells
 	cs, err = s.PopN(1)
 	assert.Nil(t, cs)
-	assert.EqualError(t, err, "Stack is insufficient")
+	assert.EqualError(t, err, "Stack is missing 1 Cells")
 }
 
 func TestPush(t *testing.T) {
@@ -73,12 +73,12 @@ func TestPushAll(t *testing.T) {
 	s := New()
 
 	// success
-	s.PushAll([]cell.Cell{1, 2, 3})
-	assert.Equal(t, []cell.Cell{1, 2, 3}, s.Cells)
+	s.PushAll([]cell.Cell{1, 2})
+	assert.Equal(t, []cell.Cell{1, 2}, s.Cells)
 }
 
 func TestString(t *testing.T) {
 	// success
-	s := New(1, 2, 3).String()
-	assert.Equal(t, "1 2 3", s)
+	s := New(1, 2).String()
+	assert.Equal(t, "1 2", s)
 }
