@@ -25,7 +25,29 @@ var Stdin io.Reader = os.Stdin
 var Stdout io.Writer = os.Stdout
 
 ///////////////////////////////////////////////////////////////////////////////////////
-//                                 part 1 · the stack                                //
+//                                part 1 · the helpers                               //
+///////////////////////////////////////////////////////////////////////////////////////
+
+// Read returns an integer from Stdin.
+func Read() int {
+	var bs = make([]byte, 1)
+	Stdin.Read(bs)
+	return int(bs[0])
+}
+
+// Write writes an integer or byte to Stdout.
+func Write(a any) {
+	switch a := a.(type) {
+	case byte:
+		Stdout.Write([]byte{a})
+	case int:
+		s := fmt.Sprintf("%c", a)
+		Stdout.Write([]byte(s))
+	}
+}
+
+///////////////////////////////////////////////////////////////////////////////////////
+//                                 part 2 · the stack                                //
 ///////////////////////////////////////////////////////////////////////////////////////
 
 // Stack is a last-in-first-out stack of stored integers.
@@ -49,7 +71,7 @@ func Push(is ...int) {
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
-//                                 part 2 · the queue                                //
+//                                 part 3 · the queue                                //
 ///////////////////////////////////////////////////////////////////////////////////////
 
 // Queue is a first-in-first-out queue of parsed atoms.
@@ -74,7 +96,7 @@ func DequeueTo(a any) ([]any, error) {
 	}
 
 	as := Queue[:i]
-	Queue = Queue[i:]
+	Queue = Queue[i+1:]
 	return as, nil
 }
 
@@ -84,7 +106,7 @@ func Enqueue(as []any) {
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
-//                                part 3 · the parser                                //
+//                                part 4 · the parser                                //
 ///////////////////////////////////////////////////////////////////////////////////////
 
 // Parse returns a parsed atom slice from a string.
@@ -104,26 +126,14 @@ func Parse(s string) []any {
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
-//                               part 4 · the operators                              //
+//                               part 5 · the operators                              //
 ///////////////////////////////////////////////////////////////////////////////////////
 
 // Oper is a global operator function.
 type Oper func() error
 
 // Opers is a global map of all existing Oper functions.
-var Opers = map[string]Oper{
-	// Mathematical functions.
-	"+": Wrap(2, func(is []int) { Push(is[0] + is[1]) }),
-	"-": Wrap(2, func(is []int) { Push(is[0] - is[1]) }),
-	"*": Wrap(2, func(is []int) { Push(is[0] * is[1]) }),
-	"/": Wrap(2, func(is []int) { Push(is[0] / is[1]) }),
-	"%": Wrap(2, func(is []int) { Push(is[0] % is[1]) }),
-
-	// Stack functions.
-	"&": Wrap(1, func(is []int) { Push(is[0], is[0]) }),
-	"~": Wrap(2, func(is []int) { Push(is[0], is[1]) }),
-	"@": Wrap(3, func(is []int) { Push(is[1], is[0], is[2]) }),
-}
+var Opers = make(map[string]Oper)
 
 // Wrap wraps an integer slice function with a Stack error.
 func Wrap(n int, ifun func([]int)) Oper {
@@ -139,16 +149,11 @@ func Wrap(n int, ifun func([]int)) Oper {
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
-//                                part 5 · the runtime                               //
+//                                part 6 · the runtime                               //
 ///////////////////////////////////////////////////////////////////////////////////////
 
 // Evaluate evaluates the next atom in the Queue.
-func Evaluate() error {
-	a, err := Dequeue()
-	if err != nil {
-		return err
-	}
-
+func Evaluate(a any) error {
 	switch a := a.(type) {
 	case int:
 		Push(a)
@@ -165,10 +170,15 @@ func Evaluate() error {
 	}
 }
 
-// EvaluateAll evaluates all atoms in the Queue.
-func EvaluateAll() error {
+// EvaluateQueue evaluates all atoms in the Queue.
+func EvaluateQueue() error {
 	for len(Queue) > 0 {
-		if err := Evaluate(); err != nil {
+		a, err := Dequeue()
+		if err != nil {
+			return err
+		}
+
+		if err := Evaluate(a); err != nil {
 			return err
 		}
 	}
@@ -176,15 +186,24 @@ func EvaluateAll() error {
 	return nil
 }
 
-// EvaluateString parses, enqueues and evaluates a string.
+// EvaluateSlice evaluates all atoms in an atom slice.
+func EvaluateSlice(as []any) error {
+	for _, a := range as {
+		if err := Evaluate(a); err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+// EvaluateString evaluates all atoms in a parsed string.
 func EvaluateString(s string) error {
-	ss := Parse(s)
-	Enqueue(ss)
-	return EvaluateAll()
+	return EvaluateSlice(Parse(s))
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
-//                               part 6 · the commands                               //
+//                               part 7 · the commands                               //
 ///////////////////////////////////////////////////////////////////////////////////////
 
 // RunREPL launches a read-eval-print loop.
@@ -194,8 +213,9 @@ func RunREPL() {
 	for {
 		fmt.Fprintf(Stdout, "> ")
 		s, _ := r.ReadString('\n')
+		Enqueue(Parse(s))
 
-		if err := EvaluateString(s); err != nil {
+		if err := EvaluateQueue(); err != nil {
 			fmt.Fprintf(Stdout, "Error: %s.\n", err.Error())
 
 		} else if len(Stack) > 0 {
@@ -205,8 +225,45 @@ func RunREPL() {
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
-//                             part 7 · the main function                            //
+//                             part 8 · the main function                            //
 ///////////////////////////////////////////////////////////////////////////////////////
+
+func init() {
+	// Mathematical functions.
+	Opers["+"] = Wrap(2, func(is []int) { Push(is[0] + is[1]) })
+	Opers["-"] = Wrap(2, func(is []int) { Push(is[0] - is[1]) })
+	Opers["*"] = Wrap(2, func(is []int) { Push(is[0] * is[1]) })
+	Opers["/"] = Wrap(2, func(is []int) { Push(is[0] / is[1]) })
+	Opers["%"] = Wrap(2, func(is []int) { Push(is[0] % is[1]) })
+
+	// Stack functions.
+	Opers["&"] = Wrap(1, func(is []int) { Push(is[0], is[0]) })
+	Opers["~"] = Wrap(2, func(is []int) { Push(is[0], is[1]) })
+	Opers["@"] = Wrap(3, func(is []int) { Push(is[1], is[0], is[2]) })
+
+	// Input/output functions.
+	Opers["."] = Wrap(1, func(is []int) { Write(is[0]) })
+	Opers[","] = Wrap(0, func(is []int) { Push(Read()) })
+
+	// Logic functions.
+	Opers["?["] = func() error {
+		is, err := Pop(1)
+		if err != nil {
+			return err
+		}
+
+		as, err := DequeueTo("]?")
+		if err != nil {
+			return err
+		}
+
+		if is[0] != 0 {
+			return EvaluateSlice(as)
+		}
+
+		return nil
+	}
+}
 
 func main() {
 	// ss := os.Args[1:]
