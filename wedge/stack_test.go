@@ -1,10 +1,19 @@
-package main
+package wedge
 
 import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
 )
+
+func TestPeek(t *testing.T) {
+	// setup
+	Stack = []int{123}
+
+	// success
+	i := Peek()
+	assert.Equal(t, 123, i)
+}
 
 func TestPop(t *testing.T) {
 	// setup

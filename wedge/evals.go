@@ -1,4 +1,4 @@
-package main
+package wedge
 
 // Evaluate evaluates the next atom in the Queue.
 func Evaluate(a any) {
