@@ -7,29 +7,11 @@ package main
 import (
 	"bufio"
 	"fmt"
-	"strconv"
-	"strings"
 )
 
 ///////////////////////////////////////////////////////////////////////////////////////
 //                                part 4 · the parser                                //
 ///////////////////////////////////////////////////////////////////////////////////////
-
-// Parse returns a parsed atom slice from a string.
-func Parse(s string) []any {
-	var as []any
-
-	for _, s := range strings.Fields(strings.ToLower(s)) {
-		i, err := strconv.Atoi(s)
-		if err == nil {
-			as = append(as, i)
-		} else {
-			as = append(as, s)
-		}
-	}
-
-	return as
-}
 
 ///////////////////////////////////////////////////////////////////////////////////////
 //                               part 5 · the operators                              //
