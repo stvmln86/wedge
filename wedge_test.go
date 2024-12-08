@@ -186,29 +186,30 @@ func TestInitOpers(t *testing.T) {
 	// setup
 	b := mockStream("test\n")
 
-	// success - mathematical functions
+	// success - mathematical operators
 	assertOper(t, "1 2 +", 3)
 	assertOper(t, "1 2 -", 1)
 	assertOper(t, "2 3 *", 6)
 	assertOper(t, "3 6 /", 2)
 	assertOper(t, "2 5 %", 1)
 
-	// success - stack functions
+	// success - stack operators
 	assertOper(t, "1 &", 1, 1)
 	assertOper(t, "1 #", 1, 1)
 	assertOper(t, "1 2 ~", 2, 1)
 	assertOper(t, "1 2 3 @", 2, 3, 1)
 
-	// success - input/output functions
+	// success - input/output operators
 	assertOper(t, "116 .")
 	assertOper(t, ",", int('t'))
 	assert.Equal(t, "t", b.String())
 
-	// logic functions
+	// logic operators
 	assertOper(t, "0 {? 1 ?}")
 	assertOper(t, "1 {? 1 ?}", 1)
 	assertOper(t, "0 {# 1 #}")
 	assertOper(t, "2 {# 1 #}", 1, 1)
+	assertOper(t, "{= t 1 =} t", 1)
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////

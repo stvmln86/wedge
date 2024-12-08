@@ -103,7 +103,7 @@ func Dequeue() any {
 	return a
 }
 
-// DequeueTo removes and all atoms up to an atom in the Queue.
+// DequeueTo removes and returns all atoms up to an atom in the Queue.
 func DequeueTo(a any) []any {
 	i := slices.Index(Queue, a)
 	if i < 0 {
@@ -181,14 +181,14 @@ func EvaluateString(s string) {
 
 // InitOpers initialises the Opers map with default operator functions.
 func InitOpers() {
-	// Mathematical functions.
+	// Mathematical operators.
 	Opers["+"] = func() { Push(Pop() + Pop()) }
 	Opers["-"] = func() { Push(Pop() - Pop()) }
 	Opers["*"] = func() { Push(Pop() * Pop()) }
 	Opers["/"] = func() { Push(Pop() / Pop()) }
 	Opers["%"] = func() { Push(Pop() % Pop()) }
 
-	// Stack functions.
+	// Stack operators.
 	Opers["&"] = func() { Push(Peek()) }
 	Opers["#"] = func() { Push(len(Stack)) }
 	Opers["~"] = func() { Push(Pop(), Pop()) }
@@ -197,15 +197,15 @@ func InitOpers() {
 		Push(b, a, c)
 	}
 
-	// Input/output functions.
+	// Input/output operators.
 	Opers["."] = func() { Write(Pop()) }
 	Opers[","] = func() { Push(Read()) }
 
-	// System functions.
+	// System operators.
 	Opers["dump"] = func() { fmt.Fprintf(Stdout, ": %v\n", Stack) }
 	Opers["exit"] = func() { Running = false }
 
-	// Logic functions.
+	// Logic operators.
 	Opers["{?"] = func() {
 		as := DequeueTo("?}")
 		if Pop() != 0 {
@@ -218,6 +218,15 @@ func InitOpers() {
 		for range Pop() {
 			EvaluateSlice(as)
 		}
+	}
+
+	Opers["{="] = func() {
+		as := DequeueTo("=}")
+		if _, ok := as[0].(string); len(as) < 2 || !ok {
+			panic("invalid function")
+		}
+
+		Opers[as[0].(string)] = func() { EvaluateSlice(as[1:]) }
 	}
 }
 
