@@ -107,7 +107,7 @@ func Dequeue() any {
 func DequeueTo(a any) []any {
 	i := slices.Index(Queue, a)
 	if i < 0 {
-		panic("queue is insufficient")
+		panic(fmt.Sprintf("queue is missing %q", a))
 	}
 
 	as := Queue[:i]
@@ -115,9 +115,14 @@ func DequeueTo(a any) []any {
 	return as
 }
 
-// Enqueue appends an atom sequence to the end of the Queue.
-func Enqueue(as ...any) {
+// Enqueue appends an atom slice to the end of the Queue.
+func Enqueue(as []any) {
 	Queue = append(Queue, as...)
+}
+
+// Insert inserts an atom slice at the start of the Queue.
+func Insert(as []any) {
+	Queue = append(as, Queue...)
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -147,12 +152,12 @@ func Evaluate(a any) {
 	case string:
 		f, ok := Opers[a]
 		if !ok {
-			panic("invalid reference")
+			panic(fmt.Sprintf("invalid reference %q", a))
 		}
 
 		f()
 	default:
-		panic("invalid atom type")
+		panic(fmt.Sprintf("invalid atom type %T", a))
 	}
 }
 
@@ -163,16 +168,16 @@ func EvaluateQueue() {
 	}
 }
 
-// EvaluateSlice evaluates all atoms in an atom slice.
+// EvaluateSlice enqueues and evaluates all atoms in an atom slice.
 func EvaluateSlice(as []any) {
-	for _, a := range as {
-		Evaluate(a)
-	}
+	Enqueue(as)
+	EvaluateQueue()
 }
 
-// EvaluateString evaluates all atoms in a parsed string.
+// EvaluateString enqueues and evaluates all atoms in a parsed string.
 func EvaluateString(s string) {
-	EvaluateSlice(Parse(s))
+	Enqueue(Parse(s))
+	EvaluateQueue()
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -201,32 +206,41 @@ func InitOpers() {
 	Opers["."] = func() { Write(Pop()) }
 	Opers[","] = func() { Push(Read()) }
 
-	// System operators.
-	Opers["dump"] = func() { fmt.Fprintf(Stdout, ": %v\n", Stack) }
-	Opers["exit"] = func() { Running = false }
-
 	// Logic operators.
 	Opers["{?"] = func() {
 		as := DequeueTo("?}")
 		if Pop() != 0 {
-			EvaluateSlice(as)
+			Insert(as)
 		}
 	}
 
 	Opers["{#"] = func() {
 		as := DequeueTo("#}")
 		for range Pop() {
-			EvaluateSlice(as)
+			Insert(as)
 		}
 	}
 
 	Opers["{="] = func() {
 		as := DequeueTo("=}")
 		if _, ok := as[0].(string); len(as) < 2 || !ok {
-			panic("invalid function")
+			panic("invalid function definition")
 		}
 
-		Opers[as[0].(string)] = func() { EvaluateSlice(as[1:]) }
+		Opers[as[0].(string)] = func() { Insert(as[1:]) }
+	}
+
+	// System operators.
+	Opers["·"] = func() {}
+	Opers["dump"] = func() { fmt.Fprintf(Stdout, ": %v\n", Stack) }
+	Opers["exit"] = func() { Running = false }
+	Opers["eval"] = func() {
+		var rs []rune
+		for len(Stack) > 0 {
+			rs = append(rs, rune(Pop()))
+		}
+
+		Insert(Parse(string(rs)))
 	}
 }
 
@@ -244,12 +258,9 @@ func RunREPL() {
 		as := Parse(s)
 
 		if len(as) != 0 {
-			Enqueue(as...)
+			Enqueue(as)
+			Enqueue(Parse("# {? dump ?}"))
 			EvaluateQueue()
-
-			if len(Stack) > 0 {
-				Opers["dump"]()
-			}
 		}
 	}
 }

@@ -124,8 +124,17 @@ func TestEnqueue(t *testing.T) {
 	mockData("")
 
 	// success
-	Enqueue("a")
+	Enqueue([]any{"a"})
 	assert.Equal(t, []any{"a"}, Queue)
+}
+
+func TestInsert(t *testing.T) {
+	// setup
+	mockData("b")
+
+	// success
+	Insert([]any{"a"})
+	assert.Equal(t, []any{"a", "b"}, Queue)
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -205,11 +214,23 @@ func TestInitOpers(t *testing.T) {
 	assert.Equal(t, "t", b.String())
 
 	// logic operators
-	assertOper(t, "0 {? 1 ?}")
-	assertOper(t, "1 {? 1 ?}", 1)
-	assertOper(t, "0 {# 1 #}")
-	assertOper(t, "2 {# 1 #}", 1, 1)
+	assertOper(t, "0 {? 1 ?} · 1 {? 1 ?}", 1)
+	assertOper(t, "0 {# 1 #} · 2 {# 1 #}", 1, 1)
 	assertOper(t, "{= t 1 =} t", 1)
+
+	// setup
+	b.Reset()
+
+	// system operators
+	assertOper(t, "·")
+	assertOper(t, "1 dump", 1)
+	assert.Equal(t, ": [1]\n", b.String())
+
+	assertOper(t, "exit")
+	assert.False(t, Running)
+	Running = true
+
+	assertOper(t, "38 32 49 eval", 1, 1)
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
