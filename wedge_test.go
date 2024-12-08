@@ -203,6 +203,12 @@ func TestInitOpers(t *testing.T) {
 	assertOper(t, "116 .")
 	assertOper(t, ",", int('t'))
 	assert.Equal(t, "t", b.String())
+
+	// logic functions
+	assertOper(t, "0 {? 1 ?}")
+	assertOper(t, "1 {? 1 ?}", 1)
+	assertOper(t, "0 {# 1 #}")
+	assertOper(t, "2 {# 1 #}", 1, 1)
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////

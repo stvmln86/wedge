@@ -206,7 +206,19 @@ func InitOpers() {
 	Opers["exit"] = func() { Running = false }
 
 	// Logic functions.
+	Opers["{?"] = func() {
+		as := DequeueTo("?}")
+		if Pop() != 0 {
+			EvaluateSlice(as)
+		}
+	}
 
+	Opers["{#"] = func() {
+		as := DequeueTo("#}")
+		for range Pop() {
+			EvaluateSlice(as)
+		}
+	}
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
