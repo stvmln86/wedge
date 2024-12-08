@@ -35,21 +35,28 @@ var Stdout io.Writer = os.Stdout
 //                              part 2 · input & output                              //
 ///////////////////////////////////////////////////////////////////////////////////////
 
-// Read returns an input byte from Stdin as an integer.
-func Read() int {
-	var bs = make([]byte, 1)
-	Stdin.Read(bs)
-	return int(bs[0])
+// Read returns an input line from Stdin as an integer slice.
+func Read() []int {
+	r := bufio.NewReader(Stdin)
+	s, _ := r.ReadString('\n')
+
+	var is []int
+	for _, r := range s {
+		is = append(is, int(r))
+	}
+
+	slices.Reverse(is)
+	return is
 }
 
-// Write writes a byte or integer to Stdout.
-func Write(a any) {
-	switch a := a.(type) {
-	case byte:
-		Stdout.Write([]byte{a})
-	case int:
-		s := fmt.Sprintf("%c", a)
+// Write writes all integers on the Stack up to a newline to Stdout.
+func Write() {
+	for len(Stack) > 0 {
+		s := fmt.Sprintf("%c", Pop())
 		Stdout.Write([]byte(s))
+		if s == "\n" {
+			break
+		}
 	}
 }
 
@@ -184,8 +191,8 @@ func InitOpers() {
 	}
 
 	// Input/output operators.
-	Opers["."] = func() { Write(Pop()) }
-	Opers[","] = func() { Push(Read()) }
+	Opers["."] = func() { Write() }
+	Opers[","] = func() { Push(Read()...) }
 
 	// Logic operators.
 	Opers["{?"] = func() {

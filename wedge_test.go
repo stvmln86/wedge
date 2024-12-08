@@ -53,17 +53,18 @@ func TestRead(t *testing.T) {
 
 	// success
 	i := Read()
-	assert.Equal(t, int('t'), i)
+	assert.Equal(t, []int{10, 116, 115, 101, 116}, i)
 }
 
 func TestWrite(t *testing.T) {
 	// setup
+	mockData("", 1, 10, 116, 115, 101, 116)
 	b := mockStream("")
 
 	// success
-	Write(byte('t'))
-	Write(int('t'))
-	assert.Equal(t, "tt", b.String())
+	Write()
+	assert.Equal(t, "test\n", b.String())
+	assert.Equal(t, []int{1}, Stack)
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -186,7 +187,7 @@ func TestInitOpers(t *testing.T) {
 
 	// success - input/output operators
 	assertOper(t, "116 .")
-	assertOper(t, ",", int('t'))
+	assertOper(t, ",", 10, 116, 115, 101, 116)
 	assert.Equal(t, "t", b.String())
 
 	// logic operators
