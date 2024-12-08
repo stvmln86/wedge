@@ -140,7 +140,6 @@ func TestParse(t *testing.T) {
 
 func TestEvaluate(t *testing.T) {
 	// setup
-	InitOpers()
 	mockData("")
 
 	// success - int
@@ -185,7 +184,6 @@ func TestEvaluateString(t *testing.T) {
 
 func TestInitOpers(t *testing.T) {
 	// setup
-	InitOpers()
 	b := mockStream("test\n")
 
 	// success - mathematical functions
@@ -213,7 +211,6 @@ func TestInitOpers(t *testing.T) {
 
 func TestRunREPL(t *testing.T) {
 	// setup
-	InitOpers()
 	mockData("")
 	b := mockStream("1 & exit\n")
 
@@ -221,4 +218,12 @@ func TestRunREPL(t *testing.T) {
 	RunREPL()
 	assert.Equal(t, []int{1, 1}, Stack)
 	assert.Equal(t, "> : [1 1]\n", b.String())
+}
+
+///////////////////////////////////////////////////////////////////////////////////////
+//                              part 8 · main functions                              //
+///////////////////////////////////////////////////////////////////////////////////////
+
+func init() {
+	InitOpers()
 }

@@ -204,6 +204,9 @@ func InitOpers() {
 	// System functions.
 	Opers["dump"] = func() { fmt.Fprintf(Stdout, ": %v\n", Stack) }
 	Opers["exit"] = func() { Running = false }
+
+	// Logic functions.
+
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -231,7 +234,7 @@ func RunREPL() {
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
-//                               part 8 · main function                              //
+//                              part 8 · main functions                              //
 ///////////////////////////////////////////////////////////////////////////////////////
 
 func init() {
