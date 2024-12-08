@@ -17,7 +17,10 @@ import (
 
 func assertOper(t *testing.T, s string, is ...int) {
 	mockData(s)
-	EvaluateQueue()
+	for len(Queue) > 0 {
+		Evaluate(Dequeue())
+	}
+
 	if len(is) == 0 {
 		assert.Empty(t, Stack)
 	} else {
@@ -157,33 +160,6 @@ func TestEvaluate(t *testing.T) {
 
 	// success - string
 	Evaluate("&")
-	assert.Equal(t, []int{1, 1}, Stack)
-}
-
-func TestEvaluateQueue(t *testing.T) {
-	// setup
-	mockData("1 &")
-
-	// success
-	EvaluateQueue()
-	assert.Equal(t, []int{1, 1}, Stack)
-}
-
-func TestEvaluateSlice(t *testing.T) {
-	// setup
-	mockData("")
-
-	// success
-	EvaluateSlice([]any{1, "&"})
-	assert.Equal(t, []int{1, 1}, Stack)
-}
-
-func TestEvaluateString(t *testing.T) {
-	// setup
-	mockData("")
-
-	// success
-	EvaluateString("1 &")
 	assert.Equal(t, []int{1, 1}, Stack)
 }
 

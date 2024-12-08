@@ -161,25 +161,6 @@ func Evaluate(a any) {
 	}
 }
 
-// EvaluateQueue evaluates all atoms in the Queue.
-func EvaluateQueue() {
-	for len(Queue) > 0 {
-		Evaluate(Dequeue())
-	}
-}
-
-// EvaluateSlice enqueues and evaluates all atoms in an atom slice.
-func EvaluateSlice(as []any) {
-	Enqueue(as)
-	EvaluateQueue()
-}
-
-// EvaluateString enqueues and evaluates all atoms in a parsed string.
-func EvaluateString(s string) {
-	Enqueue(Parse(s))
-	EvaluateQueue()
-}
-
 ///////////////////////////////////////////////////////////////////////////////////////
 //                            part 6 · operator functions                            //
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -260,7 +241,9 @@ func RunREPL() {
 		if len(as) != 0 {
 			Enqueue(as)
 			Enqueue(Parse("# {? dump ?}"))
-			EvaluateQueue()
+			for len(Queue) > 0 {
+				Evaluate(Dequeue())
+			}
 		}
 	}
 }
