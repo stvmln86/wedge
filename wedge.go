@@ -191,8 +191,14 @@ func InitOpers() {
 	}
 
 	// Input/output operators.
-	Opers["."] = func() { Write() }
-	Opers[","] = func() { Push(Read()...) }
+	Opers["."] = func() { fmt.Fprintf(Stdout, "%c", Pop()) }
+	Opers[","] = func() {
+		var bs = make([]byte, 1)
+		Stdin.Read(bs)
+		Push(int(bs[0]))
+	}
+	Opers[":"] = func() { Write() }
+	Opers[";"] = func() { Push(Read()...) }
 
 	// Logic operators.
 	Opers["{?"] = func() {
@@ -238,19 +244,21 @@ func InitOpers() {
 
 // RunREPL launches a read-eval-print loop.
 func RunREPL() {
-	r := bufio.NewReader(Stdin)
+	Enqueue(Parse(`
+		{= _repl_prompt_ · 32 62 . . =}
+		{= _repl_eval_   · ; eval =}
+		{= _repl_dump_   · # {? dump ?} =}
+	`))
 
 	for Running {
-		fmt.Fprintf(Stdout, "> ")
-		s, _ := r.ReadString('\n')
-		as := Parse(s)
+		Enqueue(Parse(`
+			_repl_prompt_
+			_repl_eval_
+			_repl_dump_
+		`))
 
-		if len(as) != 0 {
-			Enqueue(as)
-			Enqueue(Parse("# {? dump ?}"))
-			for len(Queue) > 0 {
-				Evaluate(Dequeue())
-			}
+		for len(Queue) > 0 {
+			Evaluate(Dequeue())
 		}
 	}
 }
