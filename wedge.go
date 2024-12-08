@@ -168,6 +168,14 @@ func Evaluate(a any) {
 	}
 }
 
+// EvaluateString enqueues and evaluates a string.
+func EvaluateString(s string) {
+	Enqueue(Parse(s))
+	for len(Queue) > 0 {
+		Evaluate(Dequeue())
+	}
+}
+
 ///////////////////////////////////////////////////////////////////////////////////////
 //                            part 6 · operator functions                            //
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -244,22 +252,18 @@ func InitOpers() {
 
 // RunREPL launches a read-eval-print loop.
 func RunREPL() {
-	Enqueue(Parse(`
+	EvaluateString(`
 		{= _repl_prompt_ · 32 62 . . =}
 		{= _repl_eval_   · ; eval =}
 		{= _repl_dump_   · # {? dump ?} =}
-	`))
+	`)
 
 	for Running {
-		Enqueue(Parse(`
+		EvaluateString(`
 			_repl_prompt_
 			_repl_eval_
 			_repl_dump_
-		`))
-
-		for len(Queue) > 0 {
-			Evaluate(Dequeue())
-		}
+		`)
 	}
 }
 
